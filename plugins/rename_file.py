@@ -75,7 +75,7 @@ async def rename_doc(bot, message):
         revoke=True
     )
     
-    if message.from_user.id not in Config.BANNED_USERS:
+    if message.from_user.id in Config.AUTH_USERS:
         file_name = message.text
         description = script.CUSTOM_CAPTION_UL_FILE.format(newname=file_name)
         download_location = Config.DOWNLOAD_LOCATION + "/"
@@ -148,10 +148,9 @@ async def rename_doc(bot, message):
                 chat_id=message.chat.id,
                 document=new_file_name,
                 thumb=thumb_image_path,
-                parse_mode="html",
-                # caption=script.CAPTION.format(file_name),
+                parse_mode="md",
+                caption=script.CAPTION.format(file_name),
                 # reply_markup=reply_markup,
-                caption=(media.caption and media.caption.html) or file_name or " ",
                 reply_to_message_id=message.reply_to_message.message_id,
                 progress=progress_for_pyrogram,
                 progress_args=(
@@ -183,9 +182,6 @@ async def rename_doc(bot, message):
     else:
         await bot.send_message(
             chat_id=message.chat.id,
-            text="You're B A N N E D",
+            text="You're not Authorized to do that!",
             reply_to_message_id=message.message_id
         )
-
-
-
