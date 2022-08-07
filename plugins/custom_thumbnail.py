@@ -25,7 +25,7 @@ async def save_photo(bot, update):
     if update.from_user.id in Config.BANNED_USERS:
         await bot.delete_messages(
             chat_id=update.chat.id,
-            message_ids=update.message_id,
+            message_ids=update.id,
             revoke=True
         )
         return
@@ -36,7 +36,7 @@ async def save_photo(bot, update):
         # create download directory, if not exist
         if not os.path.isdir(download_location):
             os.makedirs(download_location)
-        await sql.df_thumb(update.from_user.id, update.message_id)
+        await sql.df_thumb(update.from_user.id, update.id)
         await bot.download_media(
             message=update,
             file_name=download_location
@@ -44,7 +44,7 @@ async def save_photo(bot, update):
     else:
         # received single photo
         download_location = Config.DOWNLOAD_LOCATION + "/" + str(update.from_user.id) + ".jpg"
-        await sql.df_thumb(update.from_user.id, update.message_id)
+        await sql.df_thumb(update.from_user.id, update.id)
         await bot.download_media(
             message=update,
             file_name=download_location
@@ -52,7 +52,7 @@ async def save_photo(bot, update):
         await bot.send_message(
             chat_id=update.chat.id,
             text=script.SAVED_THUMB,
-            reply_to_message_id=update.message_id
+            reply_to_message_id=update.id
         )
 
 
@@ -61,7 +61,7 @@ async def delete_thumbnail(bot, update):
     if update.from_user.id in Config.BANNED_USERS:
         await bot.delete_messages(
             chat_id=update.chat.id,
-            message_ids=update.message_id,
+            message_ids=update.id,
             revoke=True
         )
         return
@@ -82,7 +82,7 @@ async def delete_thumbnail(bot, update):
     await bot.send_message(
         chat_id=update.chat.id,
         text=script.DEL_THUMB,
-        reply_to_message_id=update.message_id
+        reply_to_message_id=update.id
     )
 
 
@@ -91,7 +91,7 @@ async def show_thumb(bot, update):
     if update.from_user.id in Config.BANNED_USERS:
         await bot.delete_messages(
             chat_id=update.chat.id,
-            message_ids=update.message_id,
+            message_ids=update.id,
             revoke=True
         )
         return
@@ -111,7 +111,7 @@ async def show_thumb(bot, update):
             await bot.send_photo(
                 chat_id=update.chat.id,
                 photo=thumb_image_path,
-                reply_to_message_id=update.message_id
+                reply_to_message_id=update.id
             )
         except:
             pass
@@ -119,5 +119,5 @@ async def show_thumb(bot, update):
         await bot.send_message(
             chat_id=update.chat.id,
             text=script.NO_THUMB,
-            reply_to_message_id=update.message_id
+            reply_to_message_id=update.id
         )

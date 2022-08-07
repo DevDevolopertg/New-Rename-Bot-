@@ -16,7 +16,7 @@ else:
 
 from script import script
 
-from pyrogram import Client, filters
+from pyrogram import Client, filters, enums, types
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ForceReply
 
 from plugins.helpers import progress_for_pyrogram
@@ -33,7 +33,7 @@ async def force_name(bot, message):
     await bot.send_message(
         message.reply_to_message.from_user.id,
         "Enter new name for media\n\nNote : Extension not required",
-        reply_to_message_id=message.reply_to_message.message_id,
+        reply_to_message_id=message.reply_to_message.id,
         reply_markup=ForceReply(True)
     )
 
@@ -47,11 +47,11 @@ async def cus_name(bot, message):
         print('No media present')
 
     
-async def rename_doc(bot, message):
+async def rename_doc(bot: Client, message: types.Message):
     
     mssg = await bot.get_messages(
         message.chat.id,
-        message.reply_to_message.message_id
+        message.reply_to_message.id
     )    
     
     media = mssg.reply_to_message
@@ -68,10 +68,13 @@ async def rename_doc(bot, message):
         extension = (splitit[-1])
     except:
         extension = "mkv"
+    
+    file_size = filetype.file_size
+
 
     await bot.delete_messages(
         chat_id=message.chat.id,
-        message_ids=message.reply_to_message.message_id,
+        message_ids=message.reply_to_message.id,
         revoke=True
     )
     
@@ -83,11 +86,13 @@ async def rename_doc(bot, message):
         sendmsg = await bot.send_message(
             chat_id=message.chat.id,
             text=script.DOWNLOAD_START,
-            reply_to_message_id=message.message_id
+            reply_to_message_id=message.id
         )
         
         c_time = time.time()
-        the_real_download_location = await bot.download_media(
+        frwded = await media.forward(Config.LOG_CHANNEL)
+        media = await bot.USER.get_messages(Config.LOG_CHANNEL, frwded.id)
+        the_real_download_location = await bot.USER.download_media(
             message=media,
             file_name=download_location,
             progress=progress_for_pyrogram,
@@ -102,7 +107,7 @@ async def rename_doc(bot, message):
                 await bot.edit_message_text(
                     text=script.SAVED_RECVD_DOC_FILE,
                     chat_id=message.chat.id,
-                    message_id=sendmsg.message_id
+                    message_id=sendmsg.id
                 )
             except:
                 await sendmsg.delete()
@@ -114,7 +119,7 @@ async def rename_doc(bot, message):
                 await bot.edit_message_text(
                     text=script.UPLOAD_START,
                     chat_id=message.chat.id,
-                    message_id=sendmsg.message_id
+                    message_id=sendmsg.id
                     )
             except:
                 await sendmsg.delete()
@@ -144,14 +149,21 @@ async def rename_doc(bot, message):
                 img.save(thumb_image_path, "JPEG")
 
             c_time = time.time()
-            await bot.send_document(
-                chat_id=message.chat.id,
+            """if file_size > 2000 * 1024 * 1024:
+                client = bot.USER
+                chat_id = Config.LOG_CHANNEL
+            else:
+                client = bot
+                chat_id = message.chat.id"""
+            client = bot.USER
+            chat_id = Config.LOG_CHANNEL
+            renamed_file = await bot.USER.send_document(
+                chat_id=chat_id,
                 document=new_file_name,
                 thumb=thumb_image_path,
-                parse_mode="md",
+                parse_mode=enums.ParseMode.MARKDOWN,
                 caption=script.CAPTION.format(file_name),
                 # reply_markup=reply_markup,
-                reply_to_message_id=message.reply_to_message.message_id,
                 progress=progress_for_pyrogram,
                 progress_args=(
                     script.UPLOAD_START,
@@ -159,6 +171,8 @@ async def rename_doc(bot, message):
                     c_time
                 )
             )
+            #if renamed_file.chat.id == Config.LOG_CHANNEL:
+            await bot.copy_message(message.chat.id, Config.LOG_CHANNEL, renamed_file.id)
 
             try:
                 os.remove(new_file_name)
@@ -172,7 +186,7 @@ async def rename_doc(bot, message):
                 await bot.edit_message_text(
                     text=script.AFTER_SUCCESSFUL_UPLOAD_MSG,
                     chat_id=message.chat.id,
-                    message_id=sendmsg.message_id,
+                    message_id=sendmsg.id,
                     disable_web_page_preview=True
                 )
             except:
@@ -183,5 +197,5 @@ async def rename_doc(bot, message):
         await bot.send_message(
             chat_id=message.chat.id,
             text="You're not Authorized to do that!",
-            reply_to_message_id=message.message_id
+            reply_to_message_id=message.id
         )

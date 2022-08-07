@@ -18,7 +18,7 @@ from script import script
 
 import pyrogram
 
-from pyrogram import Client, filters
+from pyrogram import Client, filters, enums
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ForceReply
 from pyrogram.errors import UserNotParticipant
 
@@ -31,9 +31,9 @@ def help_user(bot, update):
         chat_id=update.chat.id,
         text=script.HELP_USER,
         reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton(text="📌 Contact 📌", url="https://t.me/Amal_PM")]]),
-        parse_mode="html",
+        parse_mode=enums.ParseMode.HTML,
         disable_web_page_preview=True,
-        reply_to_message_id=update.message_id
+        reply_to_message_id=update.id
     )
 
 
@@ -44,9 +44,9 @@ def send_start(bot, update):
     bot.send_message(
         chat_id=update.chat.id,
         text=script.START_TEXT.format(update.from_user.first_name),
-        parse_mode="html",
+        parse_mode=enums.ParseMode.HTML,
         disable_web_page_preview=True,
-        reply_to_message_id=update.message_id
+        reply_to_message_id=update.id
     )
 
 
@@ -57,8 +57,8 @@ def upgrade(bot, update):
     bot.send_message(
         chat_id=update.chat.id,
         text=script.UPGRADE_TEXT,
-        parse_mode="html",
-        reply_to_message_id=update.message_id,
+        parse_mode=enums.ParseMode.HTML,
+        reply_to_message_id=update.id,
         disable_web_page_preview=True
     )
 
@@ -93,8 +93,8 @@ async def rename_cb(bot, update):
         text="<b>File Name</b> : <code>{}</code> \n\n <b> Select the desired option below 😇</b>".format(filename),
         reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton(text="📂 Rename 📂", callback_data="rename_button")],
                                                 [InlineKeyboardButton(text="❌ Cancel ❌", callback_data="cancel_e")]]),
-        parse_mode="html",
-        reply_to_message_id=update.message_id,
+        parse_mode=enums.ParseMode.HTML,
+        reply_to_message_id=update.id,
         disable_web_page_preview=True   
     )   
 
