@@ -172,7 +172,8 @@ async def rename_doc(bot: Client, message: types.Message):
                 )
             )
             #if renamed_file.chat.id == Config.LOG_CHANNEL:
-            await bot.copy_message(message.chat.id, Config.LOG_CHANNEL, renamed_file.id)
+            renamed_msg = await bot.get_messages(Config.LOG_CHANNEL, renamed_file.id)
+            await renamed_msg.copy(message.chat.id)
 
             try:
                 os.remove(new_file_name)
