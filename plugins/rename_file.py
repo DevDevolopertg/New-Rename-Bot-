@@ -172,6 +172,7 @@ async def rename_doc(bot: Client, message: types.Message):
                 )
             )
             #if renamed_file.chat.id == Config.LOG_CHANNEL:
+            await asyncio.sleep(2)
             try:
                 renamed_msg = await bot.get_messages(Config.LOG_CHANNEL, renamed_file.id)
                 await renamed_msg.copy(message.chat.id)
